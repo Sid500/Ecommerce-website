@@ -1,31 +1,33 @@
-const staticDevCoffee = "dev-coffee-site-v1"
-const assets = [
-  "/",
-  "/index.html",
-  "/css/style.css",
-  "/js/script.js",
-  "/images/banner-bg.webp",
-  "/images/blog-1.jpg",
-  "/images/blog-2.jpg",
-  "/images/blog-3.jpg",
-  "/images/cart-img-1.png",
-  "/images/cart-img-2.png",
-  "/images/cart-img-3.png",
-  
-]
-
-self.addEventListener("install", installEvent => {
-  installEvent.waitUntil(
-    caches.open(staticDevCoffee).then(cache => {
-      cache.addAll(assets)
-    })
-  )
-})
-
-self.addEventListener("fetch", fetchEvent => {
-    fetchEvent.respondWith(
-      caches.match(fetchEvent.request).then(res => {
-        return res || fetch(fetchEvent.request)
+var urlsToCache = [
+  '/',
+  '/css/style.css',
+  '/js/script.js',
+  '/index.html'
+ 
+];
+self.addEventListener('install', (event) => {
+  console.log("service worker installted")
+  event.waitUntil(
+    caches.open('static')
+      .then((cache) => {
+        return cache.addAll(urlsToCache);
       })
-    )
-  })
+  );
+});
+self.addEventListener('activate', event => {
+  console.log("service worker is register")
+});
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // The responce is in the cache
+        if (response) {
+          return response;
+        }
+        // No cache match, we attempt to fetch it from the network
+        return fetch(event.request);
+      }
+      )
+  );
+});
